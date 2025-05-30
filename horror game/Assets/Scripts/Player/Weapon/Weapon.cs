@@ -36,7 +36,7 @@ public class Weapon : MonoBehaviour
             var hitCollider = hitInfo.collider;
             if(hitCollider.TryGetComponent(out IDamageble damageable))
             {
-                damageable.ApplyDamage(_damage);
+                //damageable.TakeDamage(_damage);
             }
         }
     }

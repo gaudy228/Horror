@@ -1,5 +1,6 @@
+using UnityEngine;
 
 public interface IDamageble
 {
-    public void ApplyDamage(float damage);
+    public void TakeDamage(float damage, Vector3 position, Vector3 direction);
 }
