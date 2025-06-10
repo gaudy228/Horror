@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
@@ -11,7 +9,7 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private Transform _groundCheck;
     [SerializeField] private float _groundDistance;
     [SerializeField] private LayerMask _ground;
-    private bool _isGround;
+    public bool IsGrounded { get; private set; }
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -30,8 +28,8 @@ public class PlayerMove : MonoBehaviour
     }
     private void Gravity()
     {
-        _isGround = Physics.CheckSphere(_groundCheck.position, _groundDistance, _ground);
-        if(_isGround && _velocity.y < 0)
+        IsGrounded = Physics.CheckSphere(_groundCheck.position, _groundDistance, _ground);
+        if(IsGrounded && _velocity.y < 0)
         {
             _velocity.y = -2f;
         }

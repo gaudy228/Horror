@@ -1,11 +1,16 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private LayerMask _layerMask;
     [SerializeField] private float _damage;
+    private BulletPool _bulletPool;
+
+    public void Initialize(BulletPool bulletPool)
+    {
+        _bulletPool = bulletPool;
+    }
     private RaycastHit Hit(Vector3 lastPos, Vector3 newPos)
     {
         RaycastHit hitted;
@@ -29,14 +34,14 @@ public class Bullet : MonoBehaviour
             {
                 if(newHit.collider.TryGetComponent<IDamageble>(out IDamageble damageable))
                 {
-                    damageable.TakeDamage(_damage, newHit.point, newHit.normal);
+                    damageable.TakeDamage(_damage);
                     StopAllCoroutines();
-                    Destroy(gameObject, 0.25f);
+                    _bulletPool.Return(this);
                 }
             }
             yield return null;
         }
         StopAllCoroutines();
-        Destroy(gameObject, 0.25f);
+        _bulletPool.Return(this);
     }
 }
