@@ -11,7 +11,7 @@ public class Weapon : MonoBehaviour
     private float _nextTimeToShoot;
 
     [Header("Bullet Parametes")]
-    [SerializeField] private BulletPool _bulletPool;
+    //[SerializeField] private BulletPool _bulletPool;
     [SerializeField] private GameObject _bullet;
     private int _curBulletInWeapon;
     [SerializeField] private int _countBulletSpendWhenShoot;
@@ -48,12 +48,8 @@ public class Weapon : MonoBehaviour
     {
         if (_haveBulletInWeapon)
         {
-            //Bullet bullet = _bulletPool.Get();
-            //bullet.transform.position = _shootPosition.position;
-            //bullet.StartCoroutine(bullet.Shoot(_shootPosition.position, _shootPosition.forward * _distance, _bulletSpeed));
             Instantiate(_bullet, _shootPosition.position, _shootPosition.rotation);
             ShootBullet(-_countBulletSpendWhenShoot);
-            //OnCameraShaked?.Invoke(1f, 0.2f, 0.1f);
             _amimShootRecoil.SetTrigger("Shoot");
         }
     }
