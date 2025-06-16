@@ -31,7 +31,6 @@ public class BulletPool : MonoBehaviour
     public void Return(Bullet bullet)
     {
         bullet.gameObject.SetActive(false);
-
         _bullet.Enqueue(bullet);   
     }
     private void ExpandPool()

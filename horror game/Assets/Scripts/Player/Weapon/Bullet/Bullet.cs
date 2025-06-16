@@ -32,16 +32,14 @@ public class Bullet : MonoBehaviour
             RaycastHit newHit = Hit(lastFramePosition, transform.position);
             if(newHit.collider != null)
             {
-                if(newHit.collider.TryGetComponent<IDamageble>(out IDamageble damageable))
+                if(newHit.collider.TryGetComponent(out IDamageble damageable))
                 {
                     damageable.TakeDamage(_damage);
-                    StopAllCoroutines();
                     _bulletPool.Return(this);
                 }
             }
             yield return null;
         }
-        StopAllCoroutines();
         _bulletPool.Return(this);
     }
 }

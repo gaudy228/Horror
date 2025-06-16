@@ -6,8 +6,12 @@ public class Enemy : MonoBehaviour, IDamageble
 {
     [SerializeField] private float _hp;
     [SerializeField] private float _speed;
+    [SerializeField, Range(0, 360)] private float _viewAngle;
+    [SerializeField] private float _detectionDistance;
     [SerializeField] private float _distance;
     [SerializeField] private bool _runPlayer = false;
+    [SerializeField] private float _timeAfterDiscoverPlayer;
+    private bool _enemyLoseSight = true;
     private NavMeshAgent _agent;
     private GameObject _player;
     private Transform _targetPoint;
@@ -24,24 +28,38 @@ public class Enemy : MonoBehaviour, IDamageble
     }
     private void Update()
     {
-        DisableWalkToPlayer();
+        DiscoverPlayer();
         Run();
     }
-    private void DisableWalkToPlayer()
+    private void DiscoverPlayer()
     {
-        float d = Vector3.Dot((_player.transform.position - transform.position).normalized, transform.forward);
-        RaycastHit hit;
-        if(d > 0.2f)
+        float distanceToPlayer = Vector3.Distance(_player.transform.position, transform.position);
+        if(distanceToPlayer <= _detectionDistance || IsinView())
         {
-            if (Physics.Raycast(transform.position, _player.transform.position - transform.position, out hit, _distance))
+            _runPlayer = true;
+            _enemyLoseSight = false;
+        }
+        else
+        {
+            if (!_enemyLoseSight)
             {
-                if (hit.transform.gameObject == _player)
-                {
-                    StartCoroutine(RunToPlayer());
-                }
-                Debug.DrawRay(transform.position, _player.transform.position - transform.position);
+                StartCoroutine(RunToPlayer());
             }
         }
+        DrawViewState();
+    }
+    private bool IsinView()
+    {
+        float realAngle = Vector3.Angle(transform.forward, _player.transform.position - transform.position);
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, _player.transform.position - transform.position, out hit, _distance))
+        {
+            if(realAngle < _viewAngle / 2f && hit.transform == _player.transform)
+            {
+                return true;
+            }
+        }
+        return false;
     }
     public void TakeDamage(float damage)
     {
@@ -70,20 +88,28 @@ public class Enemy : MonoBehaviour, IDamageble
         }
         _agent.SetDestination(_targetPoint.position);
     }
-    public IEnumerator RunToPlayer()
+    private IEnumerator RunToPlayer()
     {
-        _runPlayer = true;
-        yield return new WaitForSeconds(5);
+        _enemyLoseSight = true;
+        yield return new WaitForSeconds(_timeAfterDiscoverPlayer);
         _runPlayer = false;
     }
     public void Stun(float timeStun)
     { 
+        StopAllCoroutines();
         StartCoroutine(TimeStun(timeStun));
     }
-    public IEnumerator TimeStun(float timeStun)
+    private IEnumerator TimeStun(float timeStun)
     {
         _agent.speed = 0;
         yield return new WaitForSeconds(timeStun);
         _agent.speed = _speed;
+    }
+    private void DrawViewState()
+    {
+        Vector3 left = transform.position + Quaternion.Euler(new Vector3(0, _viewAngle / 2f, 0)) * (transform.forward * _distance);
+        Vector3 right = transform.position + Quaternion.Euler(-new Vector3(0, _viewAngle / 2f, 0)) * (transform.forward * _distance);
+        Debug.DrawLine(transform.position, left, Color.yellow);
+        Debug.DrawLine(transform.position, right, Color.yellow);
     }
 }
