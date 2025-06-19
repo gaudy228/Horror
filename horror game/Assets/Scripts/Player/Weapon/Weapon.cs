@@ -17,12 +17,13 @@ public class Weapon : MonoBehaviour
     [SerializeField] private int _countBulletSpendWhenShoot;
     [SerializeField] private int _maxCountBulletInWeapon;
     [SerializeField] private int _allBullet;
-    private bool _haveBulletInWeapon = true;
+    public bool CanShoot { set; private get; } = true;
     private WeaponUI _weaponMagazineUI;
 
     [Header("Other")]
     [SerializeField] private Animator _amimShootRecoil;
     public Action<float, float, float> OnCameraShaked;
+    [SerializeField] private AudioClip _shootSound;
     private void Awake()
     {
         _weaponMagazineUI = GetComponent<WeaponUI>();
@@ -46,11 +47,12 @@ public class Weapon : MonoBehaviour
     }
     private void Shoot()
     {
-        if (_haveBulletInWeapon)
+        if (CanShoot && _curBulletInWeapon > 0)
         {
             Instantiate(_bullet, _shootPosition.position, _shootPosition.rotation);
             ShootBullet(-_countBulletSpendWhenShoot);
             _amimShootRecoil.SetTrigger("Shoot");
+            Sounds.OnPlaySound?.Invoke(_shootSound, 0.85f, 1.2f);
         }
     }
     public void ChangeAllBullet(int countBullet)
@@ -68,7 +70,6 @@ public class Weapon : MonoBehaviour
         {
             _curBulletInWeapon += countBullet;
         }
-        _haveBulletInWeapon = _curBulletInWeapon > 0;
         _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
     }
     private void ReloadBullet()
@@ -85,7 +86,6 @@ public class Weapon : MonoBehaviour
                 _curBulletInWeapon += _allBullet;
                 _allBullet = 0;
             }
-            _haveBulletInWeapon = _curBulletInWeapon > 0;
             _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
         }
     }

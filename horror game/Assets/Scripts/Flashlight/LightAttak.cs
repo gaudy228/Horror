@@ -20,7 +20,7 @@ public class LightAttak : MonoBehaviour
     [SerializeField] private float _attakDistance;
     [SerializeField] private float _timeStun;
     [SerializeField] private LayerMask _enemyLayer;
-    [SerializeField] private LayerMask _obstacleLayer;
+    [SerializeField] private AudioClip _lightAttackSound;
     private void Awake()
     {
         _light = GetComponent<Light>();
@@ -39,6 +39,7 @@ public class LightAttak : MonoBehaviour
     private IEnumerator Attak()
     {
         Stun();
+        Sounds.OnPlaySound?.Invoke(_lightAttackSound, 0.85f, 1.2f);
         Attaking = true;
         DOTween.To(OnUpdateIntensity, _flashlightSwitch.BaseLightIntensity, _attakLightIntensity, _timeToAttak).SetEase(Ease.Linear);
         DOTween.To(OnUpdateRange, _baseLightRange, _maxLightRange, _timeToBase).SetEase(Ease.Linear);
