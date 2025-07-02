@@ -24,12 +24,16 @@ public class Weapon : MonoBehaviour
     [SerializeField] private Animator _amimShootRecoil;
     public Action<float, float, float> OnCameraShaked;
     [SerializeField] private AudioClip _shootSound;
+    private const string _key = "weapon_save";
+    private IStorageService _storageService;
     private void Awake()
     {
+        _storageService = new JsonToFileStorageService();
         _weaponMagazineUI = GetComponent<WeaponUI>();
     }
     private void Start()
     {
+        //Load();
         _curBulletInWeapon = _maxCountBulletInWeapon;
         _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
     }
@@ -44,6 +48,11 @@ public class Weapon : MonoBehaviour
             } 
         }
         ReloadBullet();
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            Load();
+            _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
+        }
     }
     private void Shoot()
     {
@@ -58,6 +67,7 @@ public class Weapon : MonoBehaviour
     public void ChangeAllBullet(int countBullet)
     {
         _allBullet += countBullet;
+        Save();
         _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
     }
     private void ShootBullet(int countBullet)
@@ -70,6 +80,7 @@ public class Weapon : MonoBehaviour
         {
             _curBulletInWeapon += countBullet;
         }
+        Save();
         _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
     }
     private void ReloadBullet()
@@ -86,6 +97,7 @@ public class Weapon : MonoBehaviour
                 _curBulletInWeapon += _allBullet;
                 _allBullet = 0;
             }
+            Save();
             _weaponMagazineUI.ChangeUI(_curBulletInWeapon, _maxCountBulletInWeapon, _allBullet);
         }
     }
@@ -110,4 +122,25 @@ public class Weapon : MonoBehaviour
         Gizmos.color = color;
         Gizmos.DrawSphere(hitPosition, hitPointRadius);
     }
+    private void Save()
+    {
+        DataWeapon data = new DataWeapon();
+        data.AllBullet = _allBullet;
+        data.CurBullet = _curBulletInWeapon;
+        _storageService.Save(_key, data);
+    }
+    private void Load()
+    {
+        _storageService.Load<DataWeapon>(_key, data =>
+        {
+            _allBullet = data.AllBullet;
+            _curBulletInWeapon = data.CurBullet;
+        });
+    }
+}
+[System.Serializable]
+public class DataWeapon
+{
+    public int AllBullet;
+    public int CurBullet;
 }

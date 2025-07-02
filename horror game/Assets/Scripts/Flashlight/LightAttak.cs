@@ -20,6 +20,7 @@ public class LightAttak : MonoBehaviour
     [SerializeField] private float _attakDistance;
     [SerializeField] private float _timeStun;
     [SerializeField] private LayerMask _enemyLayer;
+    [SerializeField] private LayerMask _obstacles;
     [SerializeField] private AudioClip _lightAttackSound;
     private void Awake()
     {
@@ -65,7 +66,14 @@ public class LightAttak : MonoBehaviour
         {
             if (_enemy[i].TryGetComponent(out Enemy enemy))
             {
-                enemy.Stun(_timeStun);
+                Vector3 Player = transform.position;
+                Vector3 Enemy = _enemy[i].transform.position;
+                bool ObstaclesBeforEnemy = Physics.Linecast(Player, Enemy, _obstacles.value);
+                if (!ObstaclesBeforEnemy)
+                {
+                    Debug.Log("stun");
+                    enemy.Stun(_timeStun);
+                }
             }
         }
     }
